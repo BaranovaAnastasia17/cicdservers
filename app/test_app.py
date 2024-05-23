@@ -1,6 +1,6 @@
 import pytest
-from flask import Flask
 from app import app, get_db_connection
+
 
 @pytest.fixture
 def client():
@@ -9,10 +9,12 @@ def client():
         with app.app_context():
             yield client
 
+
 def test_get_users(client):
     rv = client.get('/')
     assert rv.status_code == 200
     assert isinstance(rv.json, list)
+
 
 def test_db_connection():
     conn = get_db_connection()
