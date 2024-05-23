@@ -28,6 +28,11 @@ jobs:
         pip install flake8
         flake8 app --max-line-length=88
 
+    - name: Format code with black
+      run: |
+        pip install black
+        black app
+
     - name: Test with pytest
       run: |
         pip install pytest
