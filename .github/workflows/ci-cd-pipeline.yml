@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -35,8 +35,8 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pip install pytest
-        pytest app/tests
+        pip install pytest pytest-flask
+        pytest
 
     - name: Build Docker image
       run: |
