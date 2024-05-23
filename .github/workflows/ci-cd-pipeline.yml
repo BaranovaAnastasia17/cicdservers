@@ -26,12 +26,10 @@ jobs:
     - name: Start PostgreSQL container
       run: |
         podman run -d --name test_db -e POSTGRES_USER=kubsu -e POSTGRES_PASSWORD=kubsu -e POSTGRES_DB=kubsu -p 5432:5432 postgres:13
-      options:
-        retry: 3
 
     - name: Wait for PostgreSQL to start
       run: |
-        until podman exec test_db pg_isready; do
+        until podman exec test_db pg_isready -U kubsu; do
           sleep 1
         done
 
@@ -46,6 +44,12 @@ jobs:
         black app
 
     - name: Test with pytest
+      env:
+        DB_HOST: localhost
+        DB_NAME: kubsu
+        DB_USER: kubsu
+        DB_PASSWORD: kubsu
+        DB_PORT: 5432
       run: |
         pip install pytest pytest-flask
         pytest
