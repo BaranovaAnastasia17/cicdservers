@@ -36,7 +36,7 @@ jobs:
     - name: Setup database
       run: |
         podman cp setup_db.sql test_db:/setup_db.sql
-        podman exec -u postgres test_db psql -d kubsu -f /setup_db.sql
+        podman exec test_db psql -U kubsu -d kubsu -f /setup_db.sql
 
     - name: Lint with flake8
       run: |
