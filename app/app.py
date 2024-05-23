@@ -1,17 +1,17 @@
+import os
 from flask import Flask, jsonify
 import psycopg2
 
 
 app = Flask(__name__)
 
-
 def get_db_connection():
     conn = psycopg2.connect(
-        host='127.0.0.1',
-        database='kubsu',
-        user='kubsu',
-        password='kubsu',
-        port=5432)
+        host=os.getenv('DB_HOST', 'localhost'),
+        database=os.getenv('DB_NAME', 'kubsu'),
+        user=os.getenv('DB_USER', 'kubsu'),
+        password=os.getenv('DB_PASSWORD', 'kubsu'),
+        port=os.getenv('DB_PORT', 5432))
     return conn
 
 

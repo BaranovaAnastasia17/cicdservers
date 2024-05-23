@@ -23,6 +23,18 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r app/requirements.txt
 
+    - name: Start PostgreSQL container
+      run: |
+        podman run -d --name test_db -e POSTGRES_USER=kubsu -e POSTGRES_PASSWORD=kubsu -e POSTGRES_DB=kubsu -p 5432:5432 postgres:13
+      options:
+        retry: 3
+
+    - name: Wait for PostgreSQL to start
+      run: |
+        until podman exec test_db pg_isready; do
+          sleep 1
+        done
+
     - name: Lint with flake8
       run: |
         pip install flake8
