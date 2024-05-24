@@ -91,5 +91,6 @@ jobs:
         podman rm flask_app || true
         podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
         podman run -d --name flask_app --network="host" -v /home/dhawan/tasks/cicd:/app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
+        podman exec flask_app ls -la /app
         podman logs flask_app
         EOF
