@@ -88,5 +88,5 @@ jobs:
         podman stop flask_app || true
         podman rm flask_app || true
         podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
-        podman run -d --name flask_app2 --network="host" my_flask_app:latest
+        podman run -d --name flask_app --network="host" my_flask_app:latest
         EOF
