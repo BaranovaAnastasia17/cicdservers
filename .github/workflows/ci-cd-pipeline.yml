@@ -69,6 +69,11 @@ jobs:
         podman tag my_flask_app ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
         podman push ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
 
+    - name: List all containers and images
+      run: |
+        podman ps -a
+        podman images
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -91,6 +96,8 @@ jobs:
         podman rm flask_app || true
         podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
         podman run -d --name flask_app --network="host" -v /home/dhawan/tasks/cicd:/app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
-        podman exec flask_app ls -la /app
+        podman ps -a
+        podman inspect flask_app
         podman logs flask_app
+        podman exec flask_app ls -la /app
         EOF
