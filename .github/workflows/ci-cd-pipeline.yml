@@ -85,9 +85,11 @@ jobs:
     - name: Deploy to server
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        mkdir -p /home/dhawan/tasks/cicd
         cd /home/dhawan/tasks/cicd
         podman stop flask_app || true
         podman rm flask_app || true
         podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
         podman run -d --name flask_app --network="host" -v /home/dhawan/tasks/cicd:/app -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
+        podman logs flask_app
         EOF
