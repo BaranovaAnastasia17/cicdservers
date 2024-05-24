@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -33,6 +33,32 @@ jobs:
           sleep 1
         done
 
+    - name: Setup database
+      run: |
+        podman cp setup_db.sql test_db:/setup_db.sql
+        podman exec test_db psql -U kubsu -d kubsu -f /setup_db.sql
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 app --max-line-length=88
+
+    - name: Format code with black
+      run: |
+        pip install black
+        black app
+
+    - name: Test with pytest
+      env:
+        DB_HOST: localhost
+        DB_NAME: kubsu
+        DB_USER: kubsu
+        DB_PASSWORD: kubsu
+        DB_PORT: 5432
+      run: |
+        pip install pytest pytest-flask
+        pytest
+
     - name: Build Docker image
       run: |
         podman build -t my_flask_app .
@@ -51,7 +77,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Add SSH key
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
     - name: Deploy to server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest && podman stop flask_app || true && podman rm flask_app || true && podman run -d --name flask_app --network="host" -p 5000:5000 ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest'
-        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} 'podman ps'
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+        podman stop flask_app || true
+        podman rm flask_app || true
+        podman pull ${{ secrets.DOCKER_USERNAME }}/my_flask_app:latest
+        podman run -d --name flask_app2 --network="host" my_flask_app:latest
+        EOF
